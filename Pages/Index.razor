@@ -1,0 +1,31 @@
+﻿@page "/"
+@inject IJSRuntime JS;
+@using models
+
+<h3>Calculations</h3>
+
+<ul>
+    @foreach (var calculation in Calculations)
+    {
+        <li>@calculation.Name</li>
+    }
+</ul>
+
+<button @onclick="AddCalculation">Add todo</button>
+
+@code {
+    private IList<Calculation> Calculations = new List<Calculation>();
+
+    private async Task AddCalculation()
+    {
+        var name = await JS.InvokeAsync<string>("prompt", "Are you sure?");
+
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        Calculations.Add(new Calculation
+        {
+            Name = name,
+        });
+    }
+
+}
