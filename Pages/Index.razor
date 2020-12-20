@@ -1,5 +1,8 @@
 ﻿@page "/"
-@inject IJSRuntime JS;
+
+@inject IJSRuntime _jsRuntime;
+@inject Blazored.LocalStorage.ILocalStorageService _localStorage
+
 @using models
 
 <h3>Calculations</h3>
@@ -11,14 +14,42 @@
     }
 </ul>
 
-<button @onclick="AddCalculation">Add todo</button>
+<button @onclick="AddCalculation">Add Calculation</button>
+<button @onclick="ClearCalculations">Clear Calculations</button>
 
 @code {
+    private const string CalculationKey = "Calculations";
+    private static Func<Task> action;
     private IList<Calculation> Calculations = new List<Calculation>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SetCalculations();
+
+        action = SetCalculations;
+    }
+
+    [JSInvokable]
+    public static async Task ExternalChange()
+    {
+        await action?.Invoke();
+    }
+
+    private async Task SetCalculations()
+    {
+        var calculations = await _localStorage.GetItemAsync<List<Calculation>>(CalculationKey);
+
+        if (calculations != null)
+        {
+            Calculations = calculations;
+
+            this.StateHasChanged();
+        }
+    }
 
     private async Task AddCalculation()
     {
-        var name = await JS.InvokeAsync<string>("prompt", "Are you sure?");
+        var name = await _jsRuntime.InvokeAsync<string>("prompt", "What is the name of the new Calculation?");
 
         if (string.IsNullOrWhiteSpace(name)) return;
 
@@ -26,6 +57,14 @@
         {
             Name = name,
         });
+
+        await _localStorage.SetItemAsync(CalculationKey, Calculations);
     }
 
+    private async Task ClearCalculations()
+    {
+        Calculations = new List<Calculation>();
+
+        await _localStorage.SetItemAsync(CalculationKey, Calculations);
+    }
 }
