@@ -2,17 +2,62 @@
 
 @inject IBaseRepository<Calculation> _calculationRepository
 
-<h3>Calculations</h3>
+<div>
+    <h3>@Calculation.Name</h3>
 
+    <ul>
+        @foreach (var entry in Calculation.Entries)
+        {
+            <li>@entry.Value</li>
+        }
+    </ul>
+
+    <input type="text" @bind-value="InputValue" @onkeydown="InputValueChanged" pattern="[0-9]*"
+        @onkeydown:preventDefault />
+    <input type="button" @onclick="Submit" value="Submit" />
+
+</div>
 
 @code{
     [Parameter]
     public Guid Id { get; set; }
 
-    public Calculation Calculation { get; set; }
+    public Calculation Calculation { get; set; } = new Calculation();
+
+    public string InputValue { get; set; } = string.Empty;
+
+    public string[] AllowedKeys = new[] { "+", "-", "=" };
+
 
     protected override async Task OnInitializedAsync()
     {
         Calculation = await _calculationRepository.GetById(Id);
+    }
+
+
+    private async Task InputValueChanged(KeyboardEventArgs e)
+    {
+        if (int.TryParse(e.Key, out var _) || AllowedKeys.Contains(e.Key))
+        {
+            InputValue += e.Key;
+        }
+        else if (e.Key == "Backspace")
+        {
+            if (e.CtrlKey)
+            {
+                InputValue = string.Empty;
+            }
+            else
+            {
+                InputValue = string.Join("", InputValue.SkipLast(1));
+            }
+        }
+    }
+    private async Task Submit()
+    {
+        Calculation.Entries.Add(new CalculationEntry
+        {
+            Value = 12.ToString()
+        });
     }
 }
