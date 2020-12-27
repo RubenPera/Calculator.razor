@@ -8,7 +8,7 @@
     <ul>
         @foreach (var entry in Calculation.Entries)
         {
-            <li>@entry.Value</li>
+                        <li>@entry.Value</li>
         }
     </ul>
 
@@ -44,14 +44,14 @@
             (false, ",", _) => InputValue += e.Key,
             (false, "+", _) => InputValue += e.Key,
             (false, "-", _) => InputValue += e.Key,
-            (false, "=", _) => AddEntry() ? string.Empty : InputValue,
+            (false, "=", _) => await AddEntry() ? string.Empty : InputValue,
             (false, "Backspace", true) => string.Empty,
             (false, "Backspace", false) => string.Join("", InputValue.SkipLast(1)),
             _ => InputValue,
         };
     }
 
-    private bool AddEntry()
+    private async Task<bool> AddEntry()
     {
         if (string.IsNullOrWhiteSpace(InputValue)) return false;
 
@@ -60,8 +60,11 @@
             Value = InputValue,
         });
 
+        await _calculationRepository.CreateOrUpdate(Calculation);
+
         return true;
     }
+    
     private async Task Submit()
     {
         Calculation.Entries.Add(new CalculationEntry
