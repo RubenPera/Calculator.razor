@@ -1,6 +1,6 @@
 @page "/Calculation/{Id:guid}"
 
-@inject Blazored.LocalStorage.ILocalStorageService _localStorage
+@inject IBaseRepository<Calculation> _calculationRepository
 
 <h3>Calculations</h3>
 
@@ -8,16 +8,11 @@
 @code{
     [Parameter]
     public Guid Id { get; set; }
+
     public Calculation Calculation { get; set; }
-
-    private const string CalculationKey = "Calculations";
-
 
     protected override async Task OnInitializedAsync()
     {
-        var calculations = await _localStorage.GetItemAsync<List<Calculation>>(CalculationKey);
-
-        Calculation = calculations.Single(x => x.Id == Id);
+        Calculation = await _calculationRepository.GetById(Id);
     }
-
 }
