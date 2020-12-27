@@ -27,7 +27,7 @@
 @code {
     private const string CalculationKey = "Calculations";
     private static Func<Task> action;
-    private IList<CalculationEntity> Calculations = new List<CalculationEntity>();
+    private IList<Calculation> Calculations = new List<Calculation>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -44,7 +44,7 @@
 
     private async Task SetCalculations()
     {
-        var calculations = await _localStorage.GetItemAsync<List<CalculationEntity>>(CalculationKey);
+        var calculations = await _localStorage.GetItemAsync<List<Calculation>>(CalculationKey);
 
         if (calculations != null)
         {
@@ -60,7 +60,7 @@
 
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        Calculations.Add(new CalculationEntity
+        Calculations.Add(new Calculation
         {
             Id = Calculations.Last().Id + 1,
             Name = name,
@@ -72,7 +72,7 @@
 
     private async Task ClearCalculations()
     {
-        Calculations = new List<CalculationEntity>();
+        Calculations = new List<Calculation>();
 
         await _localStorage.SetItemAsync(CalculationKey, Calculations);
     }

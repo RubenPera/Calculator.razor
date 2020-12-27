@@ -8,14 +8,14 @@
 @code{
     [Parameter]
     public int Id { get; set; }
-    public CalculationEntity Calculation { get; set; }
+    public Calculation Calculation { get; set; }
 
     private const string CalculationKey = "Calculations";
 
 
     protected override async Task OnInitializedAsync()
     {
-        var calculations = await _localStorage.GetItemAsync<List<CalculationEntity>>(CalculationKey);
+        var calculations = await _localStorage.GetItemAsync<List<Calculation>>(CalculationKey);
 
         Calculation = calculations.Single(x => x.Id == Id);
     }
