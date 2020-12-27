@@ -1,7 +1,9 @@
+using System;
+
 namespace Calculator.Models
 {
     public class BaseEntity
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
     }
 }

@@ -1,24 +1,24 @@
 ﻿@page "/"
 
 @inject IJSRuntime _jsRuntime;
-@inject Blazored.LocalStorage.ILocalStorageService _localStorage
+@inject IBaseRepository<Calculation> _calculationRepository
 @inject NavigationManager _navManager
 
 <h3>Calculations</h3>
 
 @foreach (var calculation in Calculations)
 {
-    <div class="card mb-3" style="max-width: 540px;" @onclick="@(x => OpenCalculation(calculation.Id))">
-    <div class="row g-0">
-        <div class="col-md-8">
-            <div class="card-body">
-                <h5 class="card-title">@calculation.Name</h5>
-                <p class="card-text">TODO</p>
-                <p class="card-text"><small class="text-muted">@calculation.CreatedAt</small></p>
+                <div class="card mb-3" style="max-width: 540px;" @onclick="@(x => OpenCalculation(calculation.Id))">
+                <div class="row g-0">
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">@calculation.Name</h5>
+                            <p class="card-text">TODO</p>
+                            <p class="card-text"><small class="text-muted">@calculation.CreatedAt</small></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
 }
 
 <button @onclick="AddCalculation">Add Calculation</button>
@@ -44,7 +44,7 @@
 
     private async Task SetCalculations()
     {
-        var calculations = await _localStorage.GetItemAsync<List<Calculation>>(CalculationKey);
+        var calculations = await _calculationRepository.GetAll();
 
         if (calculations != null)
         {
@@ -60,24 +60,23 @@
 
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        Calculations.Add(new Calculation
+        await _calculationRepository.CreateOrUpdate(new Calculation
         {
-            Id = Calculations.Last().Id + 1,
             Name = name,
             CreatedAt = DateTime.Now
         });
 
-        await _localStorage.SetItemAsync(CalculationKey, Calculations);
+        await SetCalculations();
     }
 
     private async Task ClearCalculations()
     {
-        Calculations = new List<Calculation>();
+        await _calculationRepository.DeleteAll();
 
-        await _localStorage.SetItemAsync(CalculationKey, Calculations);
+        await SetCalculations();
     }
 
-    private void OpenCalculation(int calculationId)
+    private void OpenCalculation(Guid calculationId)
     {
         _navManager.NavigateTo($"/calculation/{calculationId}");
     }

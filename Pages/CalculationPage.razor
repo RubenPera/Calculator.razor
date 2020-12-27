@@ -1,4 +1,4 @@
-@page "/Calculation/{Id:int}"
+@page "/Calculation/{Id:guid}"
 
 @inject Blazored.LocalStorage.ILocalStorageService _localStorage
 
@@ -7,7 +7,7 @@
 
 @code{
     [Parameter]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public Calculation Calculation { get; set; }
 
     private const string CalculationKey = "Calculations";
