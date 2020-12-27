@@ -37,21 +37,30 @@
 
     private async Task InputValueChanged(KeyboardEventArgs e)
     {
-        if (int.TryParse(e.Key, out var _) || AllowedKeys.Contains(e.Key))
+        InputValue = ((int.TryParse(e.Key, out var _), e.Key, e.CtrlKey)) switch
         {
-            InputValue += e.Key;
-        }
-        else if (e.Key == "Backspace")
+            (true, _, _) => InputValue += e.Key,
+            (false, ".", _) => InputValue += e.Key,
+            (false, ",", _) => InputValue += e.Key,
+            (false, "+", _) => InputValue += e.Key,
+            (false, "-", _) => InputValue += e.Key,
+            (false, "=", _) => AddEntry() ? string.Empty : InputValue,
+            (false, "Backspace", true) => string.Empty,
+            (false, "Backspace", false) => string.Join("", InputValue.SkipLast(1)),
+            _ => InputValue,
+        };
+    }
+
+    private bool AddEntry()
+    {
+        if (string.IsNullOrWhiteSpace(InputValue)) return false;
+
+        Calculation.Entries.Add(new CalculationEntry
         {
-            if (e.CtrlKey)
-            {
-                InputValue = string.Empty;
-            }
-            else
-            {
-                InputValue = string.Join("", InputValue.SkipLast(1));
-            }
-        }
+            Value = InputValue,
+        });
+
+        return true;
     }
     private async Task Submit()
     {
