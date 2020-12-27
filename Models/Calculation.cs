@@ -1,10 +1,12 @@
+using System;
 using System.Collections.Generic;
 
-namespace Calculator.models
+namespace Calculator.Models
 {
-    public class Calculation
+    public class CalculationEntity : BaseEntity
     {
         public string Name { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public List<CalculationEntry> Entries { get; set; }
     }

@@ -2,17 +2,24 @@
 
 @inject IJSRuntime _jsRuntime;
 @inject Blazored.LocalStorage.ILocalStorageService _localStorage
-
-@using models
+@inject NavigationManager _navManager
 
 <h3>Calculations</h3>
 
-<ul>
-    @foreach (var calculation in Calculations)
-    {
-        <li>@calculation.Name</li>
-    }
-</ul>
+@foreach (var calculation in Calculations)
+{
+    <div class="card mb-3" style="max-width: 540px;" @onclick="@(x => OpenCalculation(calculation.Id))">
+    <div class="row g-0">
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title">@calculation.Name</h5>
+                <p class="card-text">TODO</p>
+                <p class="card-text"><small class="text-muted">@calculation.CreatedAt</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+}
 
 <button @onclick="AddCalculation">Add Calculation</button>
 <button @onclick="ClearCalculations">Clear Calculations</button>
@@ -20,7 +27,7 @@
 @code {
     private const string CalculationKey = "Calculations";
     private static Func<Task> action;
-    private IList<Calculation> Calculations = new List<Calculation>();
+    private IList<CalculationEntity> Calculations = new List<CalculationEntity>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -37,7 +44,7 @@
 
     private async Task SetCalculations()
     {
-        var calculations = await _localStorage.GetItemAsync<List<Calculation>>(CalculationKey);
+        var calculations = await _localStorage.GetItemAsync<List<CalculationEntity>>(CalculationKey);
 
         if (calculations != null)
         {
@@ -53,9 +60,11 @@
 
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        Calculations.Add(new Calculation
+        Calculations.Add(new CalculationEntity
         {
+            Id = Calculations.Last().Id + 1,
             Name = name,
+            CreatedAt = DateTime.Now
         });
 
         await _localStorage.SetItemAsync(CalculationKey, Calculations);
@@ -63,8 +72,13 @@
 
     private async Task ClearCalculations()
     {
-        Calculations = new List<Calculation>();
+        Calculations = new List<CalculationEntity>();
 
         await _localStorage.SetItemAsync(CalculationKey, Calculations);
+    }
+
+    private void OpenCalculation(int calculationId)
+    {
+        _navManager.NavigateTo($"/calculation/{calculationId}");
     }
 }
