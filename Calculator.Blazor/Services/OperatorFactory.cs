@@ -13,19 +13,19 @@ namespace Calculator.Services
 
     public class OperatorFactory : IOperatorFactory
     {
-        private IList<IOperatorService> _operatorServices { get; }
+        private List<IOperatorService> operatorServices { get; }
 
-        public OperatorFactory(IList<IOperatorService> operatorServices)
+        public OperatorFactory(List<IOperatorService> operatorServices)
         {
-            _operatorServices = operatorServices;
+            this.operatorServices = operatorServices;
         }
 
         public IOperatorService GetOperator(OperatorType operatorType)
         {
-            return _operatorServices.FirstOrDefault(x => GetOperatorType(x) == operatorType);
+            return operatorServices.FirstOrDefault(x => GetOperatorType(x) == operatorType);
         }
 
-        private OperatorType GetOperatorType(IOperatorService operatorService)
+        public OperatorType GetOperatorType(IOperatorService operatorService)
         {
             var attribute = Attribute.GetCustomAttribute(operatorService.GetType(), typeof(OperatorAttribute)) as OperatorAttribute;
 
