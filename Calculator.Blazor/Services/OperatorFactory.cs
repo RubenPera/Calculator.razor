@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Calculator.Attributes;
+using Calculator.Extensions;
 using Calculator.Types;
 
 namespace Calculator.Services
@@ -22,14 +22,9 @@ namespace Calculator.Services
 
         public IOperatorService GetOperator(OperatorType operatorType)
         {
-            return operatorServices.FirstOrDefault(x => GetOperatorType(x) == operatorType);
-        }
+            var attribute = operatorType.GetAttribute<OperatorAttribute>();
 
-        public OperatorType GetOperatorType(IOperatorService operatorService)
-        {
-            var attribute = Attribute.GetCustomAttribute(operatorService.GetType(), typeof(OperatorAttribute)) as OperatorAttribute;
-
-            return attribute?.OperatorType ?? OperatorType.None;
+            return operatorServices.FirstOrDefault(x => x.GetType() == attribute?.OperatorServiceType);
         }
     }
 }
